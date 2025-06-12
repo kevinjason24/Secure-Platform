@@ -78,7 +78,7 @@ curl http://localhost:8080/scan/1
 - **Security Tools**: python-nmap, requests, cryptography
 - **Testing**: unittest, 450+ test cases
 
-### Architecture
+### Flowchart
 ![Screenshot 2025-06-12 at 3 11 36 PM](https://github.com/user-attachments/assets/229e4a48-8c7e-4a7b-9af1-c8cb5e319b72)
 
 
