@@ -79,16 +79,8 @@ curl http://localhost:8080/scan/1
 - **Testing**: unittest, 450+ test cases
 
 ### Architecture
-```
-security_app/
-├── app.py              # Main Flask application
-├── models.py           # Database models (Users, Scans, Vulnerabilities)
-├── utils.py            # Security scanning functions
-├── templates/          # HTML templates
-├── static/             # CSS and frontend assets
-├── tests.py            # Test suite
-└── requirements.txt    # Python dependencies
-```
+![Screenshot 2025-06-12 at 3 11 36 PM](https://github.com/user-attachments/assets/229e4a48-8c7e-4a7b-9af1-c8cb5e319b72)
+
 
 ### Security Modules
 - **SQL Injection Tester**: Tests common injection patterns
