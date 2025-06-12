@@ -81,6 +81,14 @@ curl http://localhost:8080/scan/1
 ### Flowchart
 ![Screenshot 2025-06-12 at 3 11 36 PM](https://github.com/user-attachments/assets/229e4a48-8c7e-4a7b-9af1-c8cb5e319b72)
 
+### Screenshots 
+![Comprehensive scan ](https://github.com/user-attachments/assets/4b9f2da2-5343-4b91-ab93-289e754e5ef8)
+
+![Scan History](https://github.com/user-attachments/assets/0163a2f7-6aff-452b-bde6-2bb69e41c9fe)
+
+![Scan results ](https://github.com/user-attachments/assets/d7bed3c9-2fdc-465c-aa93-eb8ac7b467e1)
+![Scan results 2 ](https://github.com/user-attachments/assets/824e55e4-b3b4-4b39-8c95-b117fa35f365)
+
 
 ### Security Modules
 - **SQL Injection Tester**: Tests common injection patterns
