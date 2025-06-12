@@ -1,0 +1,347 @@
+{% extends "base.html" %}
+
+{% block title %}New Scan - Security Platform{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-search"></i> Configure Security Scan</h5>
+            </div>
+            <div class="card-body">
+                <form id="scanForm">
+                    <div class="mb-3">
+                        <label for="target" class="form-label">Target URL or IP Address</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-globe"></i></span>
+                            <input type="url" class="form-control" id="target" name="target" placeholder="https://example.com" required>
+                        </div>
+                        <div class="form-text">Enter the target URL or IP address to scan</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Scan Type</label>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="card scan-type-card" data-type="comprehensive">
+                                    <div class="card-body text-center">
+                                        <i class="fas fa-shield-alt fa-2x text-primary mb-2"></i>
+                                        <h6>Comprehensive</h6>
+                                        <small class="text-muted">Full security audit</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card scan-type-card" data-type="web">
+                                    <div class="card-body text-center">
+                                        <i class="fas fa-globe fa-2x text-success mb-2"></i>
+                                        <h6>Web Application</h6>
+                                        <small class="text-muted">OWASP Top 10 tests</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card scan-type-card" data-type="network">
+                                    <div class="card-body text-center">
+                                        <i class="fas fa-network-wired fa-2x text-warning mb-2"></i>
+                                        <h6>Network</h6>
+                                        <small class="text-muted">Port scanning</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <input type="hidden" id="scan_type" name="scan_type" value="comprehensive">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Scan Options</label>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="port_scan" checked>
+                                    <label class="form-check-label" for="port_scan">
+                                        Port Scanning
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="ssl_check" checked>
+                                    <label class="form-check-label" for="ssl_check">
+                                        SSL/TLS Analysis
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="headers_check" checked>
+                                    <label class="form-check-label" for="headers_check">
+                                        Security Headers
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="sql_injection" checked>
+                                    <label class="form-check-label" for="sql_injection">
+                                        SQL Injection Test
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="xss_test" checked>
+                                    <label class="form-check-label" for="xss_test">
+                                        XSS Vulnerability Test
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="directory_traversal" checked>
+                                    <label class="form-check-label" for="directory_traversal">
+                                        Directory Traversal
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <button type="button" class="btn btn-secondary me-md-2" onclick="history.back()">
+                            <i class="fas fa-arrow-left"></i> Cancel
+                        </button>
+                        <button type="submit" class="btn btn-primary" id="startScanBtn">
+                            <i class="fas fa-play"></i> Start Scan
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h6><i class="fas fa-info-circle"></i> Scan Information</h6>
+            </div>
+            <div class="card-body">
+                <div id="scanTypeInfo">
+                    <h6>Comprehensive Scan</h6>
+                    <p class="small text-muted">
+                        Performs a complete security assessment including:
+                    </p>
+                    <ul class="small">
+                        <li>Network port scanning</li>
+                        <li>Web application vulnerabilities</li>
+                        <li>SSL/TLS configuration</li>
+                        <li>Security headers analysis</li>
+                        <li>Common vulnerability detection</li>
+                    </ul>
+                </div>
+                
+                <hr>
+                
+                <div class="alert alert-warning small">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <strong>Important:</strong> Only scan targets you own or have explicit permission to test.
+                </div>
+                
+                <div class="alert alert-info small">
+                    <i class="fas fa-clock"></i>
+                    <strong>Duration:</strong> Scans typically take 2-10 minutes depending on the target and scan type.
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mt-3">
+            <div class="card-header">
+                <h6><i class="fas fa-chart-bar"></i> Recent Activity</h6>
+            </div>
+            <div class="card-body">
+                <div class="text-center">
+                    <small class="text-muted">Scan statistics will appear here</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Scan Progress Modal -->
+<div class="modal fade" id="scanProgressModal" tabindex="-1" data-bs-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-spinner fa-spin"></i> Scan in Progress
+                </h5>
+            </div>
+            <div class="modal-body">
+                <div class="text-center">
+                    <div class="progress mb-3">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                             role="progressbar" style="width: 0%" id="scanProgress"></div>
+                    </div>
+                    <p id="scanStatus">Initializing scan...</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="cancelScanBtn">
+                    <i class="fas fa-stop"></i> Cancel Scan
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const scanTypeCards = document.querySelectorAll('.scan-type-card');
+    const scanTypeInput = document.getElementById('scan_type');
+    const scanForm = document.getElementById('scanForm');
+    const progressModal = new bootstrap.Modal(document.getElementById('scanProgressModal'));
+    
+    // Scan type selection
+    scanTypeCards.forEach(card => {
+        card.addEventListener('click', function() {
+            // Remove active class from all cards
+            scanTypeCards.forEach(c => c.classList.remove('border-primary', 'bg-light'));
+            
+            // Add active class to clicked card
+            this.classList.add('border-primary', 'bg-light');
+            
+            // Update hidden input
+            scanTypeInput.value = this.dataset.type;
+            
+            // Update info panel
+            updateScanTypeInfo(this.dataset.type);
+        });
+    });
+    
+    // Initialize first card as selected
+    scanTypeCards[0].click();
+    
+    function updateScanTypeInfo(type) {
+        const infoDiv = document.getElementById('scanTypeInfo');
+        let content = '';
+        
+        switch(type) {
+            case 'comprehensive':
+                content = `
+                    <h6>Comprehensive Scan</h6>
+                    <p class="small text-muted">Performs a complete security assessment including:</p>
+                    <ul class="small">
+                        <li>Network port scanning</li>
+                        <li>Web application vulnerabilities</li>
+                        <li>SSL/TLS configuration</li>
+                        <li>Security headers analysis</li>
+                        <li>Common vulnerability detection</li>
+                    </ul>
+                `;
+                break;
+            case 'web':
+                content = `
+                    <h6>Web Application Scan</h6>
+                    <p class="small text-muted">Focuses on web application security:</p>
+                    <ul class="small">
+                        <li>SQL injection testing</li>
+                        <li>Cross-site scripting (XSS)</li>
+                        <li>Directory traversal</li>
+                        <li>Security headers</li>
+                        <li>SSL/TLS analysis</li>
+                    </ul>
+                `;
+                break;
+            case 'network':
+                content = `
+                    <h6>Network Scan</h6>
+                    <p class="small text-muted">Network-level security assessment:</p>
+                    <ul class="small">
+                        <li>Port scanning</li>
+                        <li>Service detection</li>
+                        <li>Operating system fingerprinting</li>
+                        <li>Network vulnerability detection</li>
+                    </ul>
+                `;
+                break;
+        }
+        
+        infoDiv.innerHTML = content;
+    }
+    
+    // Form submission
+    scanForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = {
+            target: document.getElementById('target').value,
+            scan_type: document.getElementById('scan_type').value
+        };
+        
+        // Show progress modal
+        progressModal.show();
+        
+        // Start scan
+        startScan(formData);
+    });
+    
+    function startScan(data) {
+        fetch('/api/scan', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(result => {
+            if (result.error) {
+                throw new Error(result.error);
+            }
+            
+            // Update progress
+            updateProgress(100, 'Scan completed successfully!');
+            
+            setTimeout(() => {
+                progressModal.hide();
+                window.location.href = `/scan/${result.scan_id}`;
+            }, 2000);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            updateProgress(0, `Error: ${error.message}`);
+            
+            setTimeout(() => {
+                progressModal.hide();
+            }, 3000);
+        });
+    }
+    
+    function updateProgress(percent, status) {
+        document.getElementById('scanProgress').style.width = percent + '%';
+        document.getElementById('scanStatus').textContent = status;
+    }
+    
+    // Simulate progress updates
+    function simulateProgress() {
+        let progress = 0;
+        const steps = [
+            'Initializing scan...',
+            'Performing port scan...',
+            'Testing for vulnerabilities...',
+            'Analyzing SSL/TLS...',
+            'Checking security headers...',
+            'Generating report...',
+            'Scan completed!'
+        ];
+        
+        const interval = setInterval(() => {
+            progress += Math.random() * 20;
+            if (progress > 95) progress = 95;
+            
+            const stepIndex = Math.floor((progress / 100) * steps.length);
+            updateProgress(progress, steps[stepIndex] || steps[steps.length - 1]);
+            
+            if (progress >= 95) {
+                clearInterval(interval);
+            }
+        }, 1000);
+    }
+});
+</script>
+{% endblock %} 

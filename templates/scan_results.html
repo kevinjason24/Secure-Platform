@@ -1,0 +1,407 @@
+{% extends "base.html" %}
+
+{% block title %}Scan Results - Security Platform{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1><i class="fas fa-clipboard-list"></i> Scan Results</h1>
+        <p class="text-muted mb-0">
+            <i class="fas fa-globe"></i> {{ scan.target_url }} 
+            <span class="badge bg-secondary ms-2">{{ scan.scan_type|title }}</span>
+        </p>
+    </div>
+    <div>
+        <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left"></i> Back to Dashboard
+        </a>
+        <button class="btn btn-primary" onclick="window.print()">
+            <i class="fas fa-print"></i> Export Report
+        </button>
+    </div>
+</div>
+
+<!-- Scan Summary -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h5 class="card-title">Scan Status</h5>
+                        <h6 class="mb-0">{{ scan.status|title }}</h6>
+                    </div>
+                    <div class="align-self-center">
+                        {% if scan.status == 'completed' %}
+                            <i class="fas fa-check-circle fa-2x"></i>
+                        {% elif scan.status == 'running' %}
+                            <i class="fas fa-spinner fa-spin fa-2x"></i>
+                        {% else %}
+                            <i class="fas fa-clock fa-2x"></i>
+                        {% endif %}
+                    </div>
+                </div>
+                <small>{{ scan.created_at }}</small>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card bg-danger text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h5 class="card-title">Critical</h5>
+                        <h2 class="mb-0">{{ vulnerabilities|selectattr('severity', 'equalto', 'critical')|list|length }}</h2>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-exclamation-triangle fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card bg-warning text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h5 class="card-title">High</h5>
+                        <h2 class="mb-0">{{ vulnerabilities|selectattr('severity', 'equalto', 'high')|list|length }}</h2>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-exclamation-circle fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h5 class="card-title">Total Issues</h5>
+                        <h2 class="mb-0">{{ vulnerabilities|length }}</h2>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-list fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Vulnerabilities Table -->
+{% if vulnerabilities %}
+<div class="card mb-4">
+    <div class="card-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <h5><i class="fas fa-bug"></i> Vulnerabilities Found</h5>
+            <div>
+                <select class="form-select form-select-sm" id="severityFilter">
+                    <option value="">All Severities</option>
+                    <option value="critical">Critical</option>
+                    <option value="high">High</option>
+                    <option value="medium">Medium</option>
+                    <option value="low">Low</option>
+                </select>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover" id="vulnerabilitiesTable">
+                <thead>
+                    <tr>
+                        <th>Severity</th>
+                        <th>Type</th>
+                        <th>Description</th>
+                        <th>Recommendation</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for vuln in vulnerabilities %}
+                    <tr data-severity="{{ vuln.severity }}">
+                        <td>
+                            {% if vuln.severity == 'critical' %}
+                                <span class="badge bg-danger">
+                                    <i class="fas fa-exclamation-triangle"></i> Critical
+                                </span>
+                            {% elif vuln.severity == 'high' %}
+                                <span class="badge bg-warning">
+                                    <i class="fas fa-exclamation-circle"></i> High
+                                </span>
+                            {% elif vuln.severity == 'medium' %}
+                                <span class="badge bg-info">
+                                    <i class="fas fa-info-circle"></i> Medium
+                                </span>
+                            {% else %}
+                                <span class="badge bg-secondary">
+                                    <i class="fas fa-minus-circle"></i> Low
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <code>{{ vuln.vulnerability_type }}</code>
+                        </td>
+                        <td>{{ vuln.description }}</td>
+                        <td>
+                            <small class="text-muted">{{ vuln.recommendation }}</small>
+                        </td>
+                        <td>
+                            <span class="badge bg-{{ 'success' if vuln.status == 'fixed' else 'warning' }}">
+                                {{ vuln.status|title }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Scan Results Details -->
+{% if results %}
+<div class="row">
+    <!-- Port Scan Results -->
+    {% if results.port_scan %}
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h6><i class="fas fa-network-wired"></i> Port Scan Results</h6>
+            </div>
+            <div class="card-body">
+                {% if results.port_scan.open_ports %}
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Port</th>
+                                <th>Service</th>
+                                <th>Version</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for port in results.port_scan.open_ports %}
+                            <tr>
+                                <td><strong>{{ port.port }}</strong></td>
+                                <td>{{ port.service }}</td>
+                                <td><small class="text-muted">{{ port.version or 'N/A' }}</small></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted">No open ports detected.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- SSL/TLS Check -->
+    {% if results.ssl_check %}
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h6><i class="fas fa-lock"></i> SSL/TLS Analysis</h6>
+            </div>
+            <div class="card-body">
+                {% if results.ssl_check.certificate_info %}
+                <div class="mb-3">
+                    <strong>Certificate Info:</strong>
+                    <ul class="list-unstyled small mt-2">
+                        <li><i class="fas fa-calendar"></i> Expires: {{ results.ssl_check.certificate_info.notAfter }}</li>
+                        <li><i class="fas fa-user"></i> Subject: {{ results.ssl_check.certificate_info.subject }}</li>
+                        <li><i class="fas fa-building"></i> Issuer: {{ results.ssl_check.certificate_info.issuer }}</li>
+                    </ul>
+                </div>
+                {% endif %}
+                
+                {% if results.ssl_check.vulnerabilities %}
+                <div class="alert alert-warning small">
+                    <strong>SSL Issues Found:</strong>
+                    <ul class="mb-0 mt-2">
+                        {% for vuln in results.ssl_check.vulnerabilities %}
+                        <li>{{ vuln.description }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% else %}
+                <div class="alert alert-success small">
+                    <i class="fas fa-check"></i> SSL configuration appears secure
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Security Headers -->
+    {% if results.security_headers %}
+    <div class="col-md-12 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h6><i class="fas fa-shield-alt"></i> Security Headers Analysis</h6>
+            </div>
+            <div class="card-body">
+                {% if results.security_headers.headers %}
+                <div class="row">
+                    <div class="col-md-6">
+                        <strong>Present Headers:</strong>
+                        <ul class="list-unstyled small mt-2">
+                            {% for header, value in results.security_headers.headers.items() %}
+                            {% if header in ['X-Content-Type-Options', 'X-Frame-Options', 'X-XSS-Protection', 'Strict-Transport-Security', 'Content-Security-Policy'] %}
+                            <li class="text-success">
+                                <i class="fas fa-check"></i> {{ header }}: {{ value }}
+                            </li>
+                            {% endif %}
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        {% if results.security_headers.vulnerabilities %}
+                        <strong>Missing Headers:</strong>
+                        <ul class="list-unstyled small mt-2">
+                            {% for vuln in results.security_headers.vulnerabilities %}
+                            <li class="text-warning">
+                                <i class="fas fa-exclamation-triangle"></i> {{ vuln.description }}
+                            </li>
+                            {% endfor %}
+                        </ul>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endif %}
+
+<!-- No Results Message -->
+{% if not vulnerabilities and not results %}
+<div class="card">
+    <div class="card-body text-center py-5">
+        <i class="fas fa-search fa-3x text-muted mb-3"></i>
+        <h5>No scan results available</h5>
+        <p class="text-muted">The scan may still be in progress or no vulnerabilities were found.</p>
+        <a href="{{ url_for('dashboard') }}" class="btn btn-primary">
+            <i class="fas fa-arrow-left"></i> Return to Dashboard
+        </a>
+    </div>
+</div>
+{% endif %}
+
+<!-- Risk Assessment -->
+{% if vulnerabilities %}
+{% set critical_count = vulnerabilities|selectattr('severity', 'equalto', 'critical')|list|length %}
+{% set high_count = vulnerabilities|selectattr('severity', 'equalto', 'high')|list|length %}
+{% set medium_count = vulnerabilities|selectattr('severity', 'equalto', 'medium')|list|length %}
+{% set low_count = vulnerabilities|selectattr('severity', 'equalto', 'low')|list|length %}
+{% set total_score = (critical_count * 10) + (high_count * 7) + (medium_count * 4) + (low_count * 1) %}
+
+<div class="card mt-4">
+    <div class="card-header">
+        <h6><i class="fas fa-chart-line"></i> Risk Assessment</h6>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-8">
+                <canvas id="riskChart" width="400" height="200"></canvas>
+            </div>
+            <div class="col-md-4">
+                <h6>Risk Score</h6>
+                <div class="display-4 text-{% if total_score > 50 %}danger{% elif total_score > 20 %}warning{% else %}success{% endif %}">
+                    {{ total_score }}
+                </div>
+                <small class="text-muted">
+                    Based on severity and count of vulnerabilities
+                </small>
+                
+                <div class="mt-3">
+                    <div class="progress mb-2">
+                        <div class="progress-bar bg-{% if total_score > 50 %}danger{% elif total_score > 20 %}warning{% else %}success{% endif %}" 
+                             style="width: {{ (total_score / 100 * 100) if total_score <= 100 else 100 }}%"></div>
+                    </div>
+                    <small>Risk Level: 
+                        <strong class="text-{% if total_score > 50 %}danger{% elif total_score > 20 %}warning{% else %}success{% endif %}">
+                            {% if total_score > 50 %}High{% elif total_score > 20 %}Medium{% else %}Low{% endif %}
+                        </strong>
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+{% if vulnerabilities %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endif %}
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Severity filter functionality
+    const severityFilter = document.getElementById('severityFilter');
+    if (severityFilter) {
+        severityFilter.addEventListener('change', function() {
+            const filterValue = this.value;
+            const rows = document.querySelectorAll('#vulnerabilitiesTable tbody tr');
+            
+            rows.forEach(row => {
+                if (filterValue === '' || row.dataset.severity === filterValue) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+    }
+
+    {% if vulnerabilities %}
+    // Risk assessment chart
+    if (typeof Chart !== 'undefined') {
+        const chartElement = document.getElementById('riskChart');
+        if (chartElement) {
+            const ctx = chartElement.getContext('2d');
+            try {
+                new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Critical', 'High', 'Medium', 'Low'],
+                        datasets: [{
+                            data: [{{ critical_count }}, {{ high_count }}, {{ medium_count }}, {{ low_count }}],
+                            backgroundColor: ['#dc3545', '#fd7e14', '#ffc107', '#6c757d']
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'bottom'
+                            }
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error('Error creating chart:', error);
+                chartElement.innerHTML = '<p class="text-muted">Chart could not be loaded</p>';
+            }
+        }
+    }
+    {% endif %}
+});
+</script>
+{% endblock %} 
