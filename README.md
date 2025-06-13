@@ -19,7 +19,7 @@ This app helps identify common web application vulnerabilities by running automa
 
 1. **Clone and setup:**
 ```bash
-git clone https://github.com/kevinjason24/SecurePlatform.git
+git clone https://github.com/kevinjason24/Secure-Platform.git
 cd security-platform
 ```
 
